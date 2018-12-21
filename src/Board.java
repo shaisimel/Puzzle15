@@ -94,8 +94,8 @@ public class Board {
 	private void switchSpots(Location l1, Location l2) {
 		int tempValue = matrix[l1.getX()][l1.getY()];
 		 matrix[l1.getX()][l1.getY()] = matrix[l2.getX()][l2.getY()];
-		 pieacesMap.put(matrix[l1.getX()][l1.getY()], l2);
+		 pieacesMap.put(matrix[l1.getX()][l1.getY()], l1);
 		 matrix[l2.getX()][l2.getY()] = tempValue;
-		 pieacesMap.put(matrix[l2.getX()][l2.getY()], l1);
+		 pieacesMap.put(matrix[l2.getX()][l2.getY()], l2);
 	}
 }
