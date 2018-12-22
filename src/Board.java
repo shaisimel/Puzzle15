@@ -12,17 +12,24 @@ public class Board {
 	
 	private static final int FREE_CELL_VALUE = 0;
 	
-	private HashMap<Integer, Location> pieacesMap;
+	
 	
 	
 	public Board(int width, int height) {
+		init(width, height);
+		randomizeBoard();
+	}
+	
+	public Board(int width, int height, int[][] designedBoard) {
+		init(width, height);
+		matrix = designedBoard;
+	}
+	
+	private void init(int width, int height) {
 		this.width = width;
 		this.height = height;
-		this.matrix = new int[width][height];
+		this.matrix = new int[height][width];
 		this.pieacesInPlace = 0;
-		this.pieacesMap  = new HashMap<Integer, Location>();
-		randomizeBoard();
-		
 	}
 	
 	private void randomizeBoard() {
@@ -32,16 +39,15 @@ public class Board {
 			numbers.add(i);
 		}
 		
-		for(int i=0; i < width; i++) {
-			for(int j=0; j<height; j++) {
-				int index = rand(0, numbers.size());
+		for(int i=0; i < height; i++) {
+			for(int j=0; j<width; j++) {
+				int index = rand(0, numbers.size()-1);
 				matrix[i][j] = numbers.get(index);
 				if(numbers.get(index).equals(FREE_CELL_VALUE)) {
 					freeCell = new Location(i, j);
-				} else if (isPieaceInPlace(new Location(i, j), numbers.get(index))) {
+				} else if (isPieaceInPlace(new Location(i, j))) {
 					pieacesInPlace++;
 				}
-				pieacesMap.put(numbers.get(index), new Location(i, j));
 				numbers.remove(index);
 			}
 		}
@@ -51,51 +57,64 @@ public class Board {
 		 return lower + (int)(Math.random() * (higher - lower + 1));
 	}
 	
-	private boolean isPieaceInPlace(Location l, int value) {
-		return ((l.getX()+1)*width)+l.getY() == value;
+	private boolean isPieaceInPlace(Location l) {
+		return ((l.getX()+1)*width)+l.getY() == matrix[l.getX()][l.getY()];
 	}
 	
 	public boolean isLocationOffBoard(Location l) {
 		return l.getX()<0 || l.getY()<0 || l.getX()>= width || l.getY()>= height;
 	}
 	
-	public void move(int pieaceId) {
-		Location currentLocation = pieacesMap.get(pieaceId);
-		
+	public void move(Location pieaceToMoveLocation) {
+				
 		// Validations
-		if(currentLocation == null) {
+		if(pieaceToMoveLocation == null) {
 			// TODO: Throw exception no such pieace
 		}
-		if (isLocationOffBoard(currentLocation)) {
+		if (isLocationOffBoard(pieaceToMoveLocation)) {
 			// TODO: Throw exception pieace is off the board
 		}
-		if (!currentLocation.isNear(freeCell)) {
+		if (!pieaceToMoveLocation.isNear(freeCell)) {
 			// TODO: Throw exception pieace is not near the free cell
 		}
-		if (currentLocation.equals(freeCell)) {
+		if (pieaceToMoveLocation.equals(freeCell)) {
 			// TODO: Throw exception pieace is the same as the free cell
 		}
 		
 		// Passed Validation, make the move
-		if(isPieaceInPlace(currentLocation, pieaceId)) {
+		if(isPieaceInPlace(pieaceToMoveLocation)) {
 			pieacesInPlace--;
 		}
-		switchSpots(currentLocation, freeCell);
+		switchSpots(pieaceToMoveLocation, freeCell);
 		
-		Location tempLocation = currentLocation;
-		currentLocation = freeCell;
+		Location tempLocation = pieaceToMoveLocation;
+		pieaceToMoveLocation = freeCell;
 		freeCell = tempLocation;
 		
-		if(isPieaceInPlace(currentLocation, pieaceId)) {
+		if(isPieaceInPlace(pieaceToMoveLocation)) {
 			pieacesInPlace++;
 		}
+	}
+	
+	public boolean isSolved() {
+		return pieacesInPlace==(width*height)-1;
 	}
 	
 	private void switchSpots(Location l1, Location l2) {
 		int tempValue = matrix[l1.getX()][l1.getY()];
 		 matrix[l1.getX()][l1.getY()] = matrix[l2.getX()][l2.getY()];
-		 pieacesMap.put(matrix[l1.getX()][l1.getY()], l1);
 		 matrix[l2.getX()][l2.getY()] = tempValue;
-		 pieacesMap.put(matrix[l2.getX()][l2.getY()], l2);
+	}
+
+	public int getWidth() {
+		return width;
+	}
+
+	public int getHeight() {
+		return height;
+	}
+
+	public final int[][] getMatrix() {
+		return matrix;
 	}
 }
