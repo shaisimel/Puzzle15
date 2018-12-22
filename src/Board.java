@@ -10,7 +10,7 @@ public class Board {
 	private Location freeCell;
 	private int pieacesInPlace;
 	
-	private static final int FREE_CELL_VALUE = 0;
+	public static final int FREE_CELL_VALUE = 0;
 	
 	
 	
@@ -44,8 +44,8 @@ public class Board {
 				int index = rand(0, numbers.size()-1);
 				matrix[i][j] = numbers.get(index);
 				if(numbers.get(index).equals(FREE_CELL_VALUE)) {
-					freeCell = new Location(i, j);
-				} else if (isPieaceInPlace(new Location(i, j))) {
+					freeCell = new Location(j, i);
+				} else if (isPieaceInPlace(new Location(j, i))) {
 					pieacesInPlace++;
 				}
 				numbers.remove(index);
@@ -101,9 +101,9 @@ public class Board {
 	}
 	
 	private void switchSpots(Location l1, Location l2) {
-		int tempValue = matrix[l1.getX()][l1.getY()];
-		 matrix[l1.getX()][l1.getY()] = matrix[l2.getX()][l2.getY()];
-		 matrix[l2.getX()][l2.getY()] = tempValue;
+		int tempValue = matrix[l1.getY()][l1.getY()];
+		 matrix[l1.getY()][l1.getX()] = matrix[l2.getY()][l2.getX()];
+		 matrix[l2.getY()][l2.getX()] = tempValue;
 	}
 
 	public int getWidth() {
