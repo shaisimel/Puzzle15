@@ -60,8 +60,19 @@ public class Presentation {
 				pieacesMap.put(Board.FREE_CELL_VALUE, pieacesMap.get(cell));
 				pieacesMap.put(cell, temp);
 			}
-		}catch (Exception e) {
+		} catch (RuntimeException re) {
+			System.out.println(re.getMessage());
+		}
+		catch (Exception e) {
 			System.out.println("[" + move + "] is not a valid value");
 		}
+	}
+	
+	public void printStatus() {
+		System.out.println("------------------------------------");
+		System.out.println("Is the board solved: " + board.isSolved());
+		System.out.println("Total pieces in place: " + board.getPieacesInPlace());
+		System.out.println(" ");
+		
 	}
 }

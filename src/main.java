@@ -7,6 +7,7 @@ public class main {
 		Scanner scan = new Scanner(System.in);
 		String s = "start";
 		while(!s.equalsIgnoreCase("q")) {
+			p.printStatus();
 			p.printBoard();
 			System.out.println("What tile would you like to move next?");
 			s = scan.next();

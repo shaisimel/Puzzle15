@@ -69,15 +69,18 @@ public class Board {
 				
 		// Validations
 		if(pieaceToMoveLocation == null) {
-			// TODO: Throw exception no such pieace
+			throw new RuntimeException("no such piece");
 		}
 		if (isLocationOffBoard(pieaceToMoveLocation)) {
+			throw new RuntimeException("piece is off the board");
 			// TODO: Throw exception pieace is off the board
 		}
 		if (!pieaceToMoveLocation.isNear(freeCell)) {
+			throw new RuntimeException("piece is not near the free cell");
 			// TODO: Throw exception pieace is not near the free cell
 		}
 		if (pieaceToMoveLocation.equals(freeCell)) {
+			throw new RuntimeException("piece is the same as the free cell");
 			// TODO: Throw exception pieace is the same as the free cell
 		}
 		
@@ -101,7 +104,7 @@ public class Board {
 	}
 	
 	private void switchSpots(Location l1, Location l2) {
-		int tempValue = matrix[l1.getY()][l1.getY()];
+		int tempValue = matrix[l1.getY()][l1.getX()];
 		 matrix[l1.getY()][l1.getX()] = matrix[l2.getY()][l2.getX()];
 		 matrix[l2.getY()][l2.getX()] = tempValue;
 	}
@@ -116,5 +119,9 @@ public class Board {
 
 	public final int[][] getMatrix() {
 		return matrix;
+	}
+
+	public final int getPieacesInPlace() {
+		return pieacesInPlace;
 	}
 }
