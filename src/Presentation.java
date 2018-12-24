@@ -10,8 +10,15 @@ public class Presentation {
 	private static final int DEFAULT_WIDTH = 4;
 	
 	public Presentation() {
+		
+		int [][] testBoard = {{1,2,3,4},
+							  {5,6,7,8},
+							  {9,10,11,12},
+							  {13,14,0,15}};
+		
 		this.pieacesMap  = new HashMap<Integer, Location>();
 		this.board = new Board(DEFAULT_WIDTH, DEFAULT_HEIGHT);
+		//this.board = new Board(testBoard);
 		translateMatrixIntoMap();
 	}
 	
@@ -66,6 +73,10 @@ public class Presentation {
 		catch (Exception e) {
 			System.out.println("[" + move + "] is not a valid value");
 		}
+	}
+	
+	public boolean isBoardSolved() {
+		return board.isBoardSolved();
 	}
 	
 	public void printStatus() {
