@@ -11,6 +11,7 @@ public class Board {
 	
 	private Location freeCell;
 	private int pieacesInPlace;
+	private int movesMade = 0;
 	
 	public static final int FREE_CELL_VALUE = 0;
 	
@@ -38,22 +39,67 @@ public class Board {
 	}
 		
 	private static int[][] randomizeBoard(int h, int w) {
-		ArrayList<Integer> numbers = new ArrayList<Integer>();
 		int randomBoardMatrix[][] = new int [h][w];
+		boolean isBoardSolvable = false;
 		
-		for (int i=0; i< w*h; i++) {
-			numbers.add(i);
-		}
-		
-		for(int i=0; i < h; i++) {
-			for(int j=0; j<w; j++) {
-				int index = rand(0, numbers.size()-1);
-				randomBoardMatrix[i][j] = numbers.get(index);
-				numbers.remove(index);
-			} 
+		while(!isBoardSolvable) {
+			ArrayList<Integer> numbers = new ArrayList<Integer>();
+			for (int i=0; i< w*h; i++) {
+				numbers.add(i);
+			}
+			
+			for(int i=0; i < h; i++) {
+				for(int j=0; j<w; j++) {
+					int index = rand(0, numbers.size()-1);
+					randomBoardMatrix[i][j] = numbers.get(index);
+					numbers.remove(index);
+				} 
+			}
+			
+			isBoardSolvable = isSolvable(randomBoardMatrix);
 		}
 		
 		return randomBoardMatrix;
+	}
+	
+	public static boolean isSolvable(int[][] inputMatrix)
+	{
+		int[] puzzle = new int[inputMatrix.length*inputMatrix[0].length];
+		int blankRow = 0; // the row with the blank tile
+		
+		for(int i=0; i<inputMatrix.length; i++) {
+			for(int j=0; j<inputMatrix[0].length; j++) {
+				puzzle[(i*inputMatrix.length)+j] = inputMatrix[i][j];
+				if(inputMatrix[i][j]==0) {
+					blankRow = i+1;
+				}
+			}
+		}
+		
+	    int parity = 0;
+	    int gridWidth = inputMatrix[0].length;
+	    
+
+	    for (int i = 0; i < puzzle.length; i++)
+	    {
+	        for (int j = i + 1; j < puzzle.length; j++)
+	        {
+	            if (puzzle[i] > puzzle[j] && puzzle[j] != 0)
+	            {
+	                parity++;
+	            }
+	        }
+	    }
+
+	    if (gridWidth % 2 == 0) { // even grid
+	        if (blankRow % 2 == 0) { // blank on odd row; counting from bottom
+	            return parity % 2 == 0;
+	        } else { // blank on even row; counting from bottom
+	            return parity % 2 != 0;
+	        }
+	    } else { // odd grid
+	        return parity % 2 == 0;
+	    }
 	}
 	
 	private void validateBoard(int[][] boardToTest) {
@@ -89,6 +135,10 @@ public class Board {
 			}
 			throw new RuntimeException("The board is missing the following numbers: [" + sb.toString() + "].");
 		}
+		
+		if (!isSolvable(boardToTest)){
+			throw new RuntimeException("The board is unsolvable!");
+		}
 	}
 	
 	private static int rand(int lower, int higher) {
@@ -101,10 +151,6 @@ public class Board {
 	
 	public boolean isLocationOffBoard(Location l) {
 		return l.getX()<0 || l.getY()<0 || l.getX()>= width || l.getY()>= height;
-	}
-	
-	public boolean isBoardSolved() {
-		return pieacesInPlace == (width*height)-1;
 	}
 	
 	public void move(Location pieaceToMoveLocation) {
@@ -139,6 +185,8 @@ public class Board {
 		if(isPieaceInPlace(pieaceToMoveLocation)) {
 			pieacesInPlace++;
 		}
+		
+		movesMade++;
 	}
 	
 	public boolean isSolved() {
@@ -165,5 +213,9 @@ public class Board {
 
 	public final int getPieacesInPlace() {
 		return pieacesInPlace;
+	}
+
+	public int getMovesMade() {
+		return movesMade;
 	}
 }

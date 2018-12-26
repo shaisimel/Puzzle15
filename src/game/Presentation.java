@@ -20,6 +20,7 @@ public class Presentation {
 		this.pieacesMap  = new HashMap<Integer, Location>();
 		this.board = new Board(DEFAULT_WIDTH, DEFAULT_HEIGHT);
 		//this.board = new Board(testBoard);
+		//this.board = new Board(3, 3);
 		translateMatrixIntoMap();
 	}
 	
@@ -77,13 +78,14 @@ public class Presentation {
 	}
 	
 	public boolean isBoardSolved() {
-		return board.isBoardSolved();
+		return board.isSolved();
 	}
 	
 	public void printStatus() {
 		System.out.println("------------------------------------");
 		System.out.println("Is the board solved: " + board.isSolved());
 		System.out.println("Total pieces in place: " + board.getPieacesInPlace());
+		System.out.println("Total moves made: " + board.getMovesMade());
 		System.out.println(" ");
 		
 	}
