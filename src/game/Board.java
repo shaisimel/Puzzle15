@@ -2,6 +2,7 @@ package game;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Random;
 
 public class Board {
 	private int width;
@@ -10,96 +11,106 @@ public class Board {
 	private int matrix[][];
 	
 	private Location freeCell;
-	private int pieacesInPlace;
+	private int tilesInPlace;
 	private int movesMade = 0;
 	
 	public static final int FREE_CELL_VALUE = 0;
+	public static final int MIN_BOARD_WIDTH = 2;
+	public static final int MIN_BOARD_HEIGHT = 2;
 	
 	public Board(int width, int height) {
-		this(randomizeBoard(height, width));
+		this(generateRandomBoard(height, width));
 	}
 	
 	public Board(int[][] designedBoard) {
 		validateBoard(designedBoard);
 		
 		this.width = designedBoard[0].length;
+		if(this.width<MIN_BOARD_WIDTH) {
+			throw new RuntimeException("Board width is under the minimum of [" + MIN_BOARD_WIDTH + "]");
+		}
 		this.height = designedBoard.length;
+		if(this.height<MIN_BOARD_HEIGHT) {
+			throw new RuntimeException("Board width is under the minimum of [" + MIN_BOARD_HEIGHT + "]");
+		}
 		this.matrix = designedBoard;
-		this.pieacesInPlace = 0;
+		this.tilesInPlace = 0;
 		
 		for(int i=0; i < height; i++) {
 			for(int j=0; j<width; j++) {
 				if(matrix[i][j]==FREE_CELL_VALUE) {
 					freeCell = new Location(j, i);
-				} else if (isPieaceInPlace(new Location(j, i))) {
-					pieacesInPlace++;
+				} else if (isTileInPlace(new Location(j, i))) {
+					tilesInPlace++;
 				}
 			}
 		}
 	}
 		
-	private static int[][] randomizeBoard(int h, int w) {
+	private static int[][] generateRandomBoard(int h, int w) {
 		int randomBoardMatrix[][] = new int [h][w];
-		boolean isBoardSolvable = false;
+					
+		// Init the board in the solved state
+		for(int i=0; i < h; i++) {
+			for(int j=0; j<w; j++) {
+				randomBoardMatrix[i][j] = (i*w)+j+1;
+			} 
+		}
+		randomBoardMatrix[h-1][w-1] = FREE_CELL_VALUE;
 		
-		while(!isBoardSolvable) {
-			ArrayList<Integer> numbers = new ArrayList<Integer>();
-			for (int i=0; i< w*h; i++) {
-				numbers.add(i);
+		
+		Random rand = new Random();
+		int totalNumbers = h*w-1;
+		int randomTile1; 
+		int randomTile2;
+		
+		if(totalNumbers>1) {
+			// Swapping tiles an even number of time guarantees the board to be solvable.
+			// (An odd number of times will guarantee it to be unsolvable)
+			for (int i=1; i <=h*w*2; i++) {
+				// Pick two different tile to swap
+				do {
+					randomTile1 = rand.nextInt(totalNumbers);
+					randomTile2 = rand.nextInt(totalNumbers);
+				} while  (randomTile1==randomTile2);
+				
+				// Swap tiles
+				int tmp = randomBoardMatrix[randomTile1/w][randomTile1%w];
+				randomBoardMatrix[randomTile1/w][randomTile1%w] = randomBoardMatrix[randomTile2/w][randomTile2%w];
+				randomBoardMatrix[randomTile2/w][randomTile2%w] = tmp;
 			}
-			
-			for(int i=0; i < h; i++) {
-				for(int j=0; j<w; j++) {
-					int index = rand(0, numbers.size()-1);
-					randomBoardMatrix[i][j] = numbers.get(index);
-					numbers.remove(index);
-				} 
-			}
-			
-			isBoardSolvable = isSolvable(randomBoardMatrix);
 		}
 		
 		return randomBoardMatrix;
 	}
 	
-	public static boolean isSolvable(int[][] inputMatrix)
+	private static boolean isSolvable(int[][] inputMatrix)
 	{
-		int[] puzzle = new int[inputMatrix.length*inputMatrix[0].length];
-		int blankRow = 0; // the row with the blank tile
-		
-		for(int i=0; i<inputMatrix.length; i++) {
-			for(int j=0; j<inputMatrix[0].length; j++) {
-				puzzle[(i*inputMatrix.length)+j] = inputMatrix[i][j];
-				if(inputMatrix[i][j]==0) {
-					blankRow = i+1;
-				}
-			}
-		}
-		
+		int matrixWidth = inputMatrix[0].length;
+		int matrixHeight = inputMatrix.length;
+		int blankRow = 0;
 	    int parity = 0;
-	    int gridWidth = inputMatrix[0].length;
 	    
-
-	    for (int i = 0; i < puzzle.length; i++)
-	    {
-	        for (int j = i + 1; j < puzzle.length; j++)
-	        {
-	            if (puzzle[i] > puzzle[j] && puzzle[j] != 0)
-	            {
+	    
+	    for (int i = 0; i < matrixWidth*matrixHeight; i++) {
+	        for (int j = i + 1; j < matrixWidth*matrixHeight; j++) {
+	            if (inputMatrix[i/matrixWidth][i%matrixWidth] > inputMatrix[j/matrixWidth][j%matrixWidth] && 
+	            		inputMatrix[j/matrixWidth][j%matrixWidth] != 0) {
 	                parity++;
+	            } else if (inputMatrix[i/matrixWidth][i%matrixWidth] == 0) {
+	            	blankRow = (i/matrixWidth)+1;
 	            }
 	        }
 	    }
 
-	    if (gridWidth % 2 == 0) { // even grid
-	        if (blankRow % 2 == 0) { // blank on odd row; counting from bottom
-	            return parity % 2 == 0;
-	        } else { // blank on even row; counting from bottom
-	            return parity % 2 != 0;
-	        }
-	    } else { // odd grid
-	        return parity % 2 == 0;
+	    boolean isSolvable;
+	    if (matrixWidth % 2 == 0 && blankRow % 2 != 0) {
+	    	isSolvable = parity % 2 != 0;
+	    } else {
+	    	isSolvable = parity % 2 == 0;
 	    }
+	    
+	    return isSolvable;
 	}
 	
 	private void validateBoard(int[][] boardToTest) {
@@ -140,16 +151,12 @@ public class Board {
 			throw new RuntimeException("The board is unsolvable!");
 		}
 	}
-	
-	private static int rand(int lower, int higher) {
-		 return lower + (int)(Math.random() * (higher - lower + 1));
-	}
-	
-	private boolean isPieaceInPlace(Location l) {
+		
+	private boolean isTileInPlace(Location l) {
 		return (((l.getY())*width)+l.getX())+1 == matrix[l.getY()][l.getX()];
 	}
 	
-	public boolean isLocationOffBoard(Location l) {
+	private boolean isLocationOffBoard(Location l) {
 		return l.getX()<0 || l.getY()<0 || l.getX()>= width || l.getY()>= height;
 	}
 	
@@ -173,8 +180,8 @@ public class Board {
 		}
 		
 		// Passed Validation, make the move
-		if(isPieaceInPlace(pieaceToMoveLocation)) {
-			pieacesInPlace--;
+		if(isTileInPlace(pieaceToMoveLocation)) {
+			tilesInPlace--;
 		}
 		switchSpots(pieaceToMoveLocation, freeCell);
 		
@@ -182,15 +189,15 @@ public class Board {
 		pieaceToMoveLocation = freeCell;
 		freeCell = tempLocation;
 		
-		if(isPieaceInPlace(pieaceToMoveLocation)) {
-			pieacesInPlace++;
+		if(isTileInPlace(pieaceToMoveLocation)) {
+			tilesInPlace++;
 		}
 		
 		movesMade++;
 	}
 	
 	public boolean isSolved() {
-		return pieacesInPlace==(width*height)-1;
+		return tilesInPlace==(width*height)-1;
 	}
 	
 	private void switchSpots(Location l1, Location l2) {
@@ -211,8 +218,8 @@ public class Board {
 		return matrix;
 	}
 
-	public final int getPieacesInPlace() {
-		return pieacesInPlace;
+	public int getTilesInPlace() {
+		return tilesInPlace;
 	}
 
 	public int getMovesMade() {

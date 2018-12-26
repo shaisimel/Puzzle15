@@ -3,18 +3,20 @@ import java.util.Scanner;
 
 public class main {
 
-	public static void main(String[] args) {
+	private static final String COMMAND_TO_QUIT = "q";
+	
+	public static void main(String[] args) {		
 		Presentation p = new Presentation();
 		Scanner scan = new Scanner(System.in);
 		String s = "start";
-		System.out.println("Any anytime you can press \'q\' to quit the program.");
-		while(!s.equalsIgnoreCase("q") && !p.isBoardSolved()) {
+		System.out.println("Any anytime you can press \'" + COMMAND_TO_QUIT + "\' to quit the program.");
+		while(!s.equalsIgnoreCase(COMMAND_TO_QUIT) && !p.isBoardSolved()) {
 			p.printStatus();
 			p.printBoard();
 			System.out.println("What tile would you like to move next?");
 			s = scan.next();
 			
-			if(!s.equalsIgnoreCase("q")) {
+			if(!s.equalsIgnoreCase(COMMAND_TO_QUIT)) {
 				p.makeMove(s);
 			}
 		}
@@ -22,10 +24,9 @@ public class main {
 		if(p.isBoardSolved()) {
 			p.printStatus();
 			p.printBoard();
-			System.out.println("The board is solved, all the pieces are in place! Good job!");
+			System.out.println("The board is solved, all the tiles are in place! Good job!");
 		}
-		else if(s.equalsIgnoreCase("q")) {
-			System.out.println("Quiting...");
-		}
+		scan.close();
+		System.out.println("Quiting...");
 	}
 }
