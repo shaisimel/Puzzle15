@@ -168,15 +168,12 @@ public class Board {
 		}
 		if (isLocationOffBoard(pieaceToMoveLocation)) {
 			throw new RuntimeException("piece is off the board");
-			// TODO: Throw exception pieace is off the board
 		}
 		if (!pieaceToMoveLocation.isNear(freeCell)) {
 			throw new RuntimeException("piece is not near the free cell");
-			// TODO: Throw exception pieace is not near the free cell
 		}
 		if (pieaceToMoveLocation.equals(freeCell)) {
 			throw new RuntimeException("piece is the same as the free cell");
-			// TODO: Throw exception pieace is the same as the free cell
 		}
 		
 		// Passed Validation, make the move
